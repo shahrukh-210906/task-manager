@@ -5,9 +5,11 @@ import Header from "./components/Header";
 import TaskForm from "./components/TaskForm";
 import TaskCard from "./components/TaskCard";
 
-const API_URL = import.meta.env.VITE_API_URL || "/api/tasks"; //
+// Using a relative path for single-project deployment on Vercel
+const API_URL = import.meta.env.VITE_API_URL || "/api/tasks"; 
+
 function App() {
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]); // Initialized as an empty array
   const [task, setTask] = useState({
     title: "",
     description: "",
@@ -23,9 +25,14 @@ function App() {
   const fetchTasks = async () => {
     try {
       const res = await axios.get(API_URL);
-      setTasks(res.data);
+      // Debug log to see what the server is returning
+      console.log("API Response:", res.data);
+      
+      // Ensure tasks is always an array to prevent .map() errors
+      setTasks(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Fetch Error:", err);
+      setTasks([]); 
     }
   };
 
@@ -88,15 +95,22 @@ function App() {
       />
 
       <div className="task-grid">
-        {tasks.map((t) => (
-          <TaskCard
-            key={t._id}
-            task={t}
-            updateStatus={updateStatus}
-            handleEdit={handleEdit}
-            deleteTask={deleteTask}
-          />
-        ))}
+        {/* Safety check to ensure tasks is an array before mapping */}
+        {Array.isArray(tasks) && tasks.length > 0 ? (
+          tasks.map((t) => (
+            <TaskCard
+              key={t._id}
+              task={t}
+              updateStatus={updateStatus}
+              handleEdit={handleEdit}
+              deleteTask={deleteTask}
+            />
+          ))
+        ) : (
+          <p style={{ textAlign: "center", gridColumn: "1/-1" }}>
+            No tasks found.
+          </p>
+        )}
       </div>
     </div>
   );
