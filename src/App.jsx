@@ -1,25 +1,33 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import './App.css';
-import Header from './components/Header';
-import TaskForm from './components/TaskForm';
-import TaskCard from './components/TaskCard';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import "./App.css";
+import Header from "./components/Header";
+import TaskForm from "./components/TaskForm";
+import TaskCard from "./components/TaskCard";
 
-const API_URL = "http://localhost:5000/api/tasks";
-
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/tasks"; //
 function App() {
   const [tasks, setTasks] = useState([]);
-  const [task, setTask] = useState({ title: '', description: '', status: 'Pending' });
+  const [task, setTask] = useState({
+    title: "",
+    description: "",
+    status: "Pending",
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
 
-  useEffect(() => { fetchTasks(); }, []);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
   const fetchTasks = async () => {
     try {
       const res = await axios.get(API_URL);
       setTasks(res.data);
-    } catch (err) { console.error("Fetch Error:", err); }
+    } catch (err) {
+      console.error("Fetch Error:", err);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -34,23 +42,27 @@ function App() {
       } else {
         await axios.post(API_URL, task);
       }
-      setTask({ title: '', description: '', status: 'Pending' });
+      setTask({ title: "", description: "", status: "Pending" });
       fetchTasks();
-    } catch (err) { console.error("Submit Error:", err); }
+    } catch (err) {
+      console.error("Submit Error:", err);
+    }
   };
 
   const handleEdit = (t) => {
     setIsEditing(true);
     setCurrentId(t._id);
     setTask({ title: t.title, description: t.description, status: t.status });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const updateStatus = async (id, status) => {
     try {
       await axios.put(`${API_URL}/${id}`, { status });
       fetchTasks();
-    } catch (err) { console.error("Status Update Error:", err); }
+    } catch (err) {
+      console.error("Status Update Error:", err);
+    }
   };
 
   const deleteTask = async (id) => {
@@ -58,30 +70,32 @@ function App() {
       try {
         await axios.delete(`${API_URL}/${id}`);
         fetchTasks();
-      } catch (err) { console.error("Delete Error:", err); }
+      } catch (err) {
+        console.error("Delete Error:", err);
+      }
     }
   };
 
   return (
     <div className="container">
       <Header />
-      
-      <TaskForm 
-        task={task} 
-        setTask={setTask} 
-        handleSubmit={handleSubmit} 
-        isEditing={isEditing} 
-        setIsEditing={setIsEditing} 
+
+      <TaskForm
+        task={task}
+        setTask={setTask}
+        handleSubmit={handleSubmit}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
       />
 
       <div className="task-grid">
         {tasks.map((t) => (
-          <TaskCard 
-            key={t._id} 
-            task={t} 
-            updateStatus={updateStatus} 
-            handleEdit={handleEdit} 
-            deleteTask={deleteTask} 
+          <TaskCard
+            key={t._id}
+            task={t}
+            updateStatus={updateStatus}
+            handleEdit={handleEdit}
+            deleteTask={deleteTask}
           />
         ))}
       </div>
